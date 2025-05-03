@@ -96,9 +96,11 @@ def ask_groq(prompt, api_key, context_text=None):
     data = {
         "model": MODEL_NAME,
         "messages": [
-            {"role":  "You are a helpful quantum physics assistant. Always explain concepts clearly and deeply. "
+            {"role": "system", "content": 
+             "You are a helpful quantum physics assistant. Always explain concepts clearly and deeply. "
              "When showing math (even inline like variables, equations, kets, or probabilities), always wrap math using LaTeX syntax with `$...$` for inline math and `$$...$$` for block math. "
-             "Do not output raw math without LaTeX wrapping. Use `\\begin{}` blocks only inside `$$...$$`. "},
+             "Do not output raw math without LaTeX wrapping. Use `\\begin{}` blocks only inside `$$...$$`. "
+            },
             {"role": "user", "content": full_prompt}
         ]
     }

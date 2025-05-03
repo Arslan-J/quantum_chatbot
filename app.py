@@ -41,11 +41,24 @@ def extract_text_from_pdf(file):
         return ""
 
 def clean_and_display_grok_reply(reply):
-    # Replace Grok's [ ... ] blocks with $$ ... $$ for math rendering
-    cleaned_reply = re.sub(r'\[\s*(.*?)\s*\]', r'$$\1$$', reply, flags=re.DOTALL)
+    # Step 1: Wrap \begin{...}...\end{...} blocks with $$
+    reply = re.sub(
+        r'(\\begin\{.*?\}.*?\\end\{.*?\})',
+        r'$$\1$$',
+        reply,
+        flags=re.DOTALL
+    )
 
-    # Display with math rendering
-    st.markdown(cleaned_reply, unsafe_allow_html=True)
+    # Step 2: Wrap inline math like |λ1= 1i = \begin{pmatrix} ... \end{pmatrix}
+    reply = re.sub(
+        r'(\|λ\d=.*?=\\begin\{pmatrix\}.*?\\end\{pmatrix\})',
+        r'$$\1$$',
+        reply,
+        flags=re.DOTALL
+    )
+
+    # Step 3: Display in Streamlit with math support
+    st.markdown(reply, unsafe_allow_html=True)
 
 # Upload PDF
 uploaded_file = st.file_uploader(
@@ -97,4 +110,3 @@ if st.button("Ask"):
         with st.spinner("Thinking..."):
             answer = ask_groq(user_question, api_key, pdf_context)
             fin_ans = clean_and_display_grok_reply(answer)
-            st.markdown(fin_ans, unsafe_allow_html=True)

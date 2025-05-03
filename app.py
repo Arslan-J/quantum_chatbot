@@ -5,7 +5,7 @@ import PyPDF2
 import re
 
 # Streamlit App Title
-st.title("QuantumQuery (Powered by Groq)")
+st.title("QuantumQuery (Powered by Grok)")
 st.write("Ask me anything about Quantum Physics! Optionally, upload a PDF for extra context.")
 
 # User inputs

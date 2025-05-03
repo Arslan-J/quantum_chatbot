@@ -41,31 +41,22 @@ def extract_text_from_pdf(file):
         return ""
 
 def clean_and_display_grok_reply(reply):
-    # Step 1: Convert [ ... ] math blocks into $$ ... $$
+    # Fix broken $$...$$ sequences by merging consecutive blocks
     reply = re.sub(
-        r'\[\s*(.*?)\s*\]',
-        r'$$\1$$',
+        r'\$\$(.*?)\$\$\s*\$\$(.*?)\$\$\s*\$\$(.*?)\$\$',
+        r'$$\1 \2 \3$$',
         reply,
         flags=re.DOTALL
     )
-
-    # Step 2: Fix any accidental '] [' spills
-    reply = reply.replace('] [', '$$ $$')
-
-    # Step 3: Also wrap \begin{...}...\end{...} blocks if not already wrapped
+    # Also fix double-block patterns (e.g., 2 blocks in a row)
     reply = re.sub(
-        r'(?<!\$)\s*(\\begin\{.*?\}.*?\\end\{.*?\})\s*(?!\$)',
-        r'$$\1$$',
+        r'\$\$(.*?)\$\$\s*\$\$(.*?)\$\$',
+        r'$$\1 \2$$',
         reply,
         flags=re.DOTALL
     )
-
-    # Step 4: Optional cleanup: double $$$$ ➔ $$
-    reply = reply.replace('$$$$', '$$')
-
-    # Step 5: Display in Streamlit
+    # Display cleanly in Streamlit
     st.markdown(reply, unsafe_allow_html=True)
-
 # Upload PDF
 uploaded_file = st.file_uploader(
     "Or upload a PDF for me to read:",
@@ -98,9 +89,8 @@ def ask_groq(prompt, api_key, context_text=None):
         "messages": [
             {"role": "system", "content": 
              "You are a helpful quantum physics assistant. Always explain concepts clearly and deeply. "
-             "When showing math, always wrap entire equations and matrices using LaTeX block math `$$ ... $$`. "
-             "When multiplying matrices, write the entire multiplication and result inside **one** `$$ ... $$` block, not split across multiple `$$`. "
-             "For matrices, always use LaTeX `\\begin{pmatrix} ... \\end{pmatrix}` format."
+             "When writing math, wrap entire equations using a single block math `$$ ... $$`. "
+             "Do not split matrix multiplications or subtractions into multiple `$$` blocks — always put the whole equation inside one `$$ ... $$` block."
             },
             {"role": "user", "content": full_prompt}
         ]

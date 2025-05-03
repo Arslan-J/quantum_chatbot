@@ -40,6 +40,13 @@ def extract_text_from_pdf(file):
     else:
         return ""
 
+def clean_and_display_grok_reply(reply):
+    # Replace Grok's [ ... ] blocks with $$ ... $$ for math rendering
+    cleaned_reply = re.sub(r'\[\s*(.*?)\s*\]', r'$$\1$$', reply, flags=re.DOTALL)
+
+    # Display with math rendering
+    st.markdown(cleaned_reply, unsafe_allow_html=True)
+
 # Upload PDF
 uploaded_file = st.file_uploader(
     "Or upload a PDF for me to read:",
@@ -89,4 +96,5 @@ if st.button("Ask"):
     else:
         with st.spinner("Thinking..."):
             answer = ask_groq(user_question, api_key, pdf_context)
-            st.markdown(answer, unsafe_allow_html=True)
+            fin_ans = clean_and_display_grok_reply(answer)
+            st.markdown(fin_ans, unsafe_allow_html=True)

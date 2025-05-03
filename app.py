@@ -2,11 +2,10 @@ import streamlit as st
 import os
 import requests
 import PyPDF2
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.text_rank import TextRankSummarizer
 import nltk
+from nltk.tokenize import sent_tokenize
 
+# Download punkt once
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -28,12 +27,11 @@ if not api_key:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-# Summarization Function
+# New simple summarizer using nltk
 def summarize_text(text, num_sentences=5):
-    parser = PlaintextParser.from_string(text, Tokenizer("english"))
-    summarizer = TextRankSummarizer()
-    summary = summarizer(parser.document, num_sentences)
-    return " ".join(str(sentence) for sentence in summary)
+    sentences = sent_tokenize(text)
+    summary = sentences[:num_sentences]  # Just pick first N sentences
+    return " ".join(summary)
 
 # PDF Extractor + Summarizer
 def extract_text_from_pdf(file):
@@ -43,7 +41,7 @@ def extract_text_from_pdf(file):
         page_text = page.extract_text()
         if page_text:
             pdf_text += page_text
-    if pdf_text:
+    if pdf_text.strip():
         return summarize_text(pdf_text, num_sentences=5)
     else:
         return ""
@@ -51,7 +49,7 @@ def extract_text_from_pdf(file):
 # Upload PDF
 uploaded_file = st.file_uploader(
     "Or upload a PDF for me to read:",
-    type="pdf",
+    type=["pdf"],
     accept_multiple_files=False,
     help="Upload a PDF file containing quantum physics material."
 )
@@ -59,10 +57,14 @@ uploaded_file = st.file_uploader(
 # Display summarized PDF text
 pdf_context = None
 if uploaded_file is not None:
-    if uploaded_file.name.endswith('.pdf'):
+    try:
         pdf_context = extract_text_from_pdf(uploaded_file)
-    else:
-        st.error("Please upload a valid PDF file.")
+        if not pdf_context:
+            st.warning("Uploaded PDF seems empty or unreadable.")
+        else:
+            st.info("PDF summarized and context is ready!")
+    except Exception as e:
+        st.error(f"Error processing PDF: {e}")
 
 # Groq Query Function
 def ask_groq(prompt, api_key, context_text=None):

@@ -41,23 +41,29 @@ def extract_text_from_pdf(file):
         return ""
 
 def clean_and_display_grok_reply(reply):
-    # Step 1: Wrap \begin{...}...\end{...} blocks with $$
+    # Step 1: Convert [ ... ] math blocks into $$ ... $$
     reply = re.sub(
-        r'(\\begin\{.*?\}.*?\\end\{.*?\})',
+        r'\[\s*(.*?)\s*\]',
         r'$$\1$$',
         reply,
         flags=re.DOTALL
     )
 
-    # Step 2: Wrap inline math like |λ1= 1i = \begin{pmatrix} ... \end{pmatrix}
+    # Step 2: Fix any accidental '] [' spills
+    reply = reply.replace('] [', '$$ $$')
+
+    # Step 3: Also wrap \begin{...}...\end{...} blocks if not already wrapped
     reply = re.sub(
-        r'(\|λ\d=.*?=\\begin\{pmatrix\}.*?\\end\{pmatrix\})',
+        r'(?<!\$)\s*(\\begin\{.*?\}.*?\\end\{.*?\})\s*(?!\$)',
         r'$$\1$$',
         reply,
         flags=re.DOTALL
     )
 
-    # Step 3: Display in Streamlit with math support
+    # Step 4: Optional cleanup: double $$$$ ➔ $$
+    reply = reply.replace('$$$$', '$$')
+
+    # Step 5: Display in Streamlit
     st.markdown(reply, unsafe_allow_html=True)
 
 # Upload PDF

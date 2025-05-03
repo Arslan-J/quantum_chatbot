@@ -89,4 +89,4 @@ if st.button("Ask"):
     else:
         with st.spinner("Thinking..."):
             answer = ask_groq(user_question, api_key, pdf_context)
-            st.success(answer)
+            st.markdown(answer, unsafe_allow_html=True)

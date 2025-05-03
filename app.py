@@ -20,7 +20,7 @@ if not api_key:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-# ✅ Simple summarizer using regex (no nltk)
+# Simple summarizer using regex (no nltk)
 def summarize_text(text, num_sentences=5):
     # Split sentences using regex
     sentences = re.split(r'(?<=[.!?]) +', text)

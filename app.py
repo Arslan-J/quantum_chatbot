@@ -55,9 +55,10 @@ uploaded_file = st.file_uploader(
 # Display summarized PDF text
 pdf_context = None
 if uploaded_file is not None:
-    uploaded_file.seek(0)  # Reset pointer
-    pdf_context = extract_text_from_pdf(uploaded_file)
-    st.text_area("Summarized PDF Context:", pdf_context, height=200)
+    if uploaded_file.name.endswith('.pdf'):
+        pdf_context = extract_text_from_pdf(uploaded_file)
+    else:
+        st.error("Please upload a valid PDF file.")
 
 # Groq Query Function
 def ask_groq(prompt, api_key, context_text=None):

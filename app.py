@@ -70,7 +70,7 @@ def ask_groq(prompt, api_key, context_text=None):
     data = {
         "model": MODEL_NAME,
         "messages": [
-            {"role": "system", "content": "You are a helpful quantum physics assistant. Explain concepts clearly and deeply."},
+            {"role": "system", "content": "You are a helpful quantum physics assistant. Explain concepts clearly and deeply. If answering anything that requires math use latex unless otherwise instructed."},
             {"role": "user", "content": full_prompt}
         ]
     }

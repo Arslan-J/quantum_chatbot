@@ -2,14 +2,7 @@ import streamlit as st
 import os
 import requests
 import PyPDF2
-import nltk
-from nltk.tokenize import sent_tokenize
-
-# Download punkt once
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
+import re
 
 # Streamlit App Title
 st.title("QuantumQuery (Powered by Groq)")
@@ -27,10 +20,11 @@ if not api_key:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-# New simple summarizer using nltk
+# ✅ Simple summarizer using regex (no nltk)
 def summarize_text(text, num_sentences=5):
-    sentences = sent_tokenize(text)
-    summary = sentences[:num_sentences]  # Just pick first N sentences
+    # Split sentences using regex
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    summary = sentences[:num_sentences]
     return " ".join(summary)
 
 # PDF Extractor + Summarizer

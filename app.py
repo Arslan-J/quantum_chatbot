@@ -98,8 +98,9 @@ def ask_groq(prompt, api_key, context_text=None):
         "messages": [
             {"role": "system", "content": 
              "You are a helpful quantum physics assistant. Always explain concepts clearly and deeply. "
-             "When showing math, always wrap equations with LaTeX syntax. Use `$...$` for short inline math and always use `$$...$$` for full equations, matrices, and multiline math."
-             "For matrices, always use LaTeX `\\begin{pmatrix} ... \\end{pmatrix}` format. Never output raw text matrices or partial formatting."
+             "When showing math, always wrap entire equations and matrices using LaTeX block math `$$ ... $$`. "
+             "When multiplying matrices, write the entire multiplication and result inside **one** `$$ ... $$` block, not split across multiple `$$`. "
+             "For matrices, always use LaTeX `\\begin{pmatrix} ... \\end{pmatrix}` format."
             },
             {"role": "user", "content": full_prompt}
         ]

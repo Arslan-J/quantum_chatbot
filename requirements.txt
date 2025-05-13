@@ -1,4 +1,5 @@
 streamlit
 requests
 PyPDF2
-sumy
+pytesseract
+Pillow
